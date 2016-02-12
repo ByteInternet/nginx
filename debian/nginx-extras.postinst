@@ -1,8 +1,21 @@
 #!/bin/sh
 set -e
 
+add_flavor_modules_conf()
+{
+  # Link flavor modules on fresh installations and pre-dynamic modules upgrades
+  if [ -z "$2" ] || dpkg --compare-versions "$2" lt-nl "1.9.11-1~" ; then
+      ln -s /etc/nginx/modules-available/flavor-extras.conf \
+            /etc/nginx/modules-enabled/flavor.conf
+  fi
+}
+
 case "$1" in
-  abort-upgrade|abort-remove|abort-deconfigure|configure)
+  configure)
+    add_flavor_modules_conf $@
+    ;;
+
+  abort-upgrade|abort-remove|abort-deconfigure)
     ;;
 
   *)
