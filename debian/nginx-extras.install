@@ -7,3 +7,4 @@ print "debian/build-extras/objs/src/http/modules/perl/blib/arch/auto/nginx/* $ve
 print "debian/build-extras/objs/src/http/modules/perl/blib/lib/nginx.pm $vendorarch\n";
 
 print "debian/build-extras/objs/nginx usr/sbin\n";
+print "debian/build-extras/objs/*.so  usr/lib/nginx/modules\n";

@@ -1,1 +1,2 @@
 debian/build-full/objs/nginx usr/sbin
+debian/build-full/objs/*.so  usr/lib/nginx/modules
