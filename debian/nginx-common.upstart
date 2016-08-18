@@ -1,4 +1,5 @@
 description "nginx http daemon"
+author "willem@byte.nl"
 
 start on (filesystem and net-device-up IFACE=lo)
 stop on runlevel [!2345]
@@ -7,26 +8,30 @@ env DAEMON=/usr/sbin/nginx
 env PID=/var/run/nginx.pid
 env DEFAULTFILE=/etc/default/nginx
 
-expect fork
 respawn
+respawn limit unlimited
 
 # syntax check
 pre-start script
-        $DAEMON -t
-        if [ $? -ne 0 ]
-                then exit $?
-        fi
+    $DAEMON -t
+    if [ $? -ne 0 ]
+            then exit $?
+    fi
+    # if there are dangling kids occupying our socket, slay them!
+    /bin/fuser --kill 80/tcp --verbose || /bin/true
 end script
 
-exec $DAEMON
+# daemon off, so upstart doesnt need to wait for fork
+# Otherwise, respawn does not work in case of occupied sockets
+# https://www.byte.nl/blog/?p=22570
+exec $DAEMON -g "daemon off;"
 
 # somewhat likely to get killed
-oom score 500
+oom score -200
 
 post-stop script
 	goal=$(initctl status $UPSTART_JOB | cut -d' ' -f 2 | cut -d/ -f 1)
 	if [ "$goal" != "stop" ]; then
-		sleep 10;
+		sleep 3;
 	fi
 end script
-
